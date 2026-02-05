@@ -1,0 +1,16 @@
+  #PBS    -N  CNN30_rl
+  #PBS    -o  /ghome/Alamgir/CNN30/$PBS_JOBID.out
+  #PBS    -e  /ghome/Alamgir/CNN30/$PBS_JOBID.err
+  #PBS    -l nodes=1:gpus=1:G
+  #PBS    -l walltime=360:00:00
+  #PBS    -r y
+  cd $PBS_O_WORKDIR
+  echo Time is `date`
+  echo Directory is $PWD
+  echo This job runs on following nodes:
+  echo -n "Node:"
+  cat $PBS_NODEFILE
+  echo -n "Gpus:"
+  cat $PBS_GPUFILE
+  echo "CUDA_VISIBLE_DEVICES:"$CUDA_VISIBLE_DEVICES
+  startdocker -D /gdata/Alamgir -P /ghome/Alamgir/CNN30/ -c "python /ghome/Alamgir/CNN30/main.py --folder /ghome/Alamgir/CNN30/experiments/xlan_rl --resume 54" bit:5000/alamgir
