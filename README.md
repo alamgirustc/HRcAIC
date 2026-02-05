@@ -1,31 +1,251 @@
-# HRcAIC: Hierarchical Region-Context Attention for Image Captioning (EAAI 2026)
+# Hierarchical Region-Context Attention for Image Captioning (HRcAIC) — EAAI 2026
 
-This repository contains the official implementation of **Hierarchical Region-Context Attention for Image Captioning (HRcAIC)**, published in **Engineering Applications of Artificial Intelligence (2026)**. :contentReference[oaicite:1]{index=1}
+This repository contains the official implementation of **Hierarchical Region-Context Attention for Image Captioning (HRcAIC)**, published in **Engineering Applications of Artificial Intelligence**, Volume **168** (15 March 2026), Article **114014**.
 
-HRcAIC improves caption quality by **explicitly fusing object-level region features with global scene context** using a **Region-Context Attention Network (RCAN)**, then refining the fused representation using **Hierarchical Attention-Based (HAB) context encoding** (spatial + channel attention), and generating captions with a **hierarchical LSTM decoder**. :contentReference[oaicite:2]{index=2}
+HRcAIC is a hybrid encoder–decoder framework that explicitly integrates **object-level region features** and **global scene context** using a **Region-Context Attention Network (RCAN)**, followed by **Hierarchical Attention-Based (HAB) context encoding** with **spatial + channel attention**, and a **hierarchical LSTM decoder** for fluent caption generation.
+
+**Paper DOI:** https://doi.org/10.1016/j.engappai.2026.114014  
+**Code:** https://github.com/alamgirustc/HRcAIC
 
 ---
 
-## Paper
+## 📌 Highlights
 
-**Hierarchical Region-Context Attention for image captioning**  
-Mohammad Alamgir Hossain, ZhongFu Ye, Md. Bipul Hossen, Md. Atiqur Rahman, Md Shohidul Islam, Md. Ibrahim Abdullah  
-Engineering Applications of Artificial Intelligence, Volume 168, 2026, 114014  
-DOI: https://doi.org/10.1016/j.engappai.2026.114014 :contentReference[oaicite:3]{index=3}
+- **Region–Context fusion (RCAN):** multi-head attention fuses Faster R-CNN region features with ResNet global context.
+- **HAB context encoding:** hierarchical refinement with **spatial attention + channel attention**.
+- **Hierarchical LSTM decoder:** efficient autoregressive caption generation (linear in caption length).
+- **Strong results on MS COCO 2014 (Karpathy split):**
+  - **BLEU-4 = 40.0**, **CIDEr = 132.5**, **SPICE = 23.6** (CIDEr-optimized / RL).
 
-### Please cite (BibTeX)
+---
+
+## 🖼️ Framework Overview
+
+<p align="center">
+  <img src="images/framework_hrcaic.jpg" width="900"/>
+</p>
+
+**Figure:** HRcAIC architecture (RCAN + HAB + hierarchical decoder).  
+> Put your final figure at: `images/framework_hrcaic.jpg`
+
+---
+
+## 🧾 Citation
+
+If you use this code or build upon our work, please cite:
 
 ```bibtex
-@article{HOSSAIN2026114014,
-title = {Hierarchical Region-Context Attention for image captioning},
-journal = {Engineering Applications of Artificial Intelligence},
-volume = {168},
-pages = {114014},
-year = {2026},
-issn = {0952-1976},
-doi = {https://doi.org/10.1016/j.engappai.2026.114014},
-url = {https://www.sciencedirect.com/science/article/pii/S0952197626002952},
-author = {Mohammad Alamgir Hossain and ZhongFu Ye and Md. Bipul Hossen and Md. Atiqur Rahman and Md Shohidul Islam and Md. Ibrahim Abdullah},
-keywords = {Image captioning, Region-Context Attention, Hierarchical attention, Visual fusion, Caption generation},
-abstract = {Image captioning is a challenging task that requires a deep understanding of both visual and linguistic modalities to generate accurate and meaningful descriptions. Traditional methods often struggle to effectively integrate object-level and global scene features, leading to limited contextual awareness in generated captions. To address this, we propose a novel Hierarchical Region-Context Attention for Image Captioning framework that combines a Region-Context Attention Network for multi-scale visual feature fusion with a Hierarchical Attention-Based context encoding mechanism for refined representation learning. The Region-Context and Hierarchical Attention module extracts object-level features using Faster Region-based Convolutional Neural Network and global context features from Residual Networks, integrating them through a multi-head attention mechanism. This fusion enables localized object representations to be enriched with scene-level semantics. The fused visual features are further refined using a hierarchical attention-based approach, which employs both spatial and channel-wise attention to emphasize semantically relevant information across regions and dimensions. The decoder is implemented using a hierarchical Long Short-Term Memory network that generates captions in an autoregressive manner, leveraging the hierarchical attention-based refined features to guide each word prediction. This structure enables the model to maintain temporal coherence while dynamically attending to informative visual content. We evaluate our model on the Microsoft Common Objects in Context 2014 dataset, achieving a Bilingual Evaluation Understudy score of 40.0 and a Consensus-based Image Description Evaluation score of 132.5, surpassing state-of-the-art models. Results indicate that the model effectively captures object details and context, producing more coherent and accurate captions. The code for this project is publicly available at https://github.com/alamgirustc/HRcAIC.}
+@article{hossain2026hrcaic,
+  title={Hierarchical Region-Context Attention for image captioning},
+  author={Hossain, Mohammad Alamgir and Ye, ZhongFu and Hossen, Md. Bipul and Rahman, Md. Atiqur and Islam, Md Shohidul and Abdullah, Md. Ibrahim},
+  journal={Engineering Applications of Artificial Intelligence},
+  volume={168},
+  pages={114014},
+  year={2026},
+  doi={10.1016/j.engappai.2026.114014}
 }
+```
+
+### Baseline reference (X-LAN)
+We also recommend citing the key baseline used in comparisons:
+
+```bibtex
+@inproceedings{xlinear2020cvpr,
+  title={X-Linear Attention Networks for Image Captioning},
+  author={Pan, Yingwei and Yao, Ting and Li, Yehao and Mei, Tao},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  year={2020}
+}
+```
+
+---
+
+## 🔧 Requirements
+
+- Python 3.8+ (recommended)
+- CUDA 10+ (or CUDA 11+ depending on your PyTorch build)
+- PyTorch >= 1.10 (recommended)
+- torchvision
+- numpy, tqdm, easydict
+- coco-caption (for COCO evaluation)
+
+Install core dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 📦 Data Preparation (MS COCO 2014)
+
+HRcAIC follows the standard MS COCO 2014 pipeline using region-level features (Bottom-Up style) and caption annotations.
+
+### 1) COCO Captions and Karpathy Split
+- Download MS COCO 2014 images and captions.
+- Ensure you are using the **Karpathy split** (train/val/test = 113,287 / 5,000 / 5,000).
+
+Organize (example):
+```
+data/
+  coco/
+    images/
+      train2014/
+      val2014/
+    annotations/
+      captions_train2014.json
+      captions_val2014.json
+    karpathy_split/
+      dataset_coco.json
+```
+
+### 2) Bottom-Up Region Features (Faster R-CNN)
+Use Faster R-CNN (ResNet-101 backbone, pretrained on Visual Genome), then convert features to `.npz`.
+
+If you use TSV-style features (Bottom-Up Attention style), convert them:
+
+```bash
+python2 tools/create_feats.py \
+  --infeats bottom_up_tsv \
+  --outfolder ./data/coco/features/up_down_10_100
+```
+
+> If your repo already includes a different extractor (recommended), document it here and provide a script such as:
+> `tools/extract_frcnn_features.py`
+
+### 3) Global Context Features (ResNet-101)
+Extract global features from ResNet-101 (full image), store as `.npz` or `.pth`:
+
+```bash
+python tools/extract_global_resnet101.py \
+  --image_root ./data/coco/images \
+  --out ./data/coco/features/global_resnet101.npz
+```
+
+> Replace with your actual script name/flags.
+
+### 4) COCO Evaluation Toolkit
+Clone and configure `coco-caption`:
+
+```bash
+git clone https://github.com/ruotianluo/coco-caption.git
+```
+
+Set the path in your config file (example):
+- `lib/config.py` → `C.INFERENCE.COCO_PATH = "/path/to/coco-caption"`
+
+---
+
+## 🏋️ Training
+
+HRcAIC training typically has two stages:
+1) Cross-Entropy (CE) pretraining  
+2) Reinforcement Learning (SCST) fine-tuning with CIDEr reward
+
+### Train with Cross-Entropy (CE)
+
+```bash
+bash experiments/hrcaic/train_ce.sh
+```
+
+### Train with SCST (CIDEr Optimization)
+
+Copy your best CE checkpoint into the RL snapshot folder:
+
+```bash
+cp experiments/hrcaic/snapshot/model_best.pth experiments/hrcaic_rl/snapshot/
+bash experiments/hrcaic_rl/train_rl.sh
+```
+
+---
+
+## ✅ Evaluation
+
+Evaluate a trained model (beam search or greedy):
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python main_test.py \
+  --folder experiments/hrcaic \
+  --resume model_best
+```
+
+Outputs:
+- Captions JSON
+- COCO metrics (BLEU, METEOR, ROUGE-L, CIDEr, SPICE)
+
+---
+
+## 📊 Reproducing Paper Results
+
+We report (Karpathy test split):
+
+### Cross-Entropy (CE)
+- BLEU-4: 38.3
+- CIDEr: 122.1
+- SPICE: 22.1
+
+### CIDEr-Optimized (RL / SCST)
+- BLEU-4: 40.0
+- CIDEr: 132.5
+- SPICE: 23.6
+
+> To reproduce, keep the backbone fixed (Faster R-CNN + ResNet-101), same split, same beam size, and same preprocessing.
+
+---
+
+## 🧠 Model Components
+
+### RCAN (Region-Context Attention Network)
+- Query: RoI region features
+- Key/Value: global context features
+- Multi-head attention + residual fusion for stable training
+
+### HAB (Hierarchical Attention-Based Context Encoding)
+- Spatial attention: emphasizes informative regions
+- Channel attention: emphasizes semantically rich feature channels
+- Element-wise fusion for robust context vectors
+
+### Hierarchical Decoder
+- Two-stage LSTM
+- Visual attention guided by HAB-refined tokens
+- GLU-based fusion for controlled injection of visual evidence
+
+---
+
+## 📁 Pretrained Models
+
+You may download pretrained checkpoints here:
+
+- **CE model:** (add link)
+- **RL model:** (add link)
+
+Example:
+```
+experiments/hrcaic/snapshot/model_best.pth
+experiments/hrcaic_rl/snapshot/model_best.pth
+```
+
+---
+
+## 🙏 Acknowledgements
+
+This repository is inspired by and/or builds upon:
+- **Bottom-Up and Top-Down Attention** (Anderson et al., 2018)
+- **Self-Critical Sequence Training (SCST)** (Rennie et al., 2017)
+- **X-LAN / X-Transformer** (Pan et al., 2020)
+- COCO caption evaluation code: `coco-caption`
+
+---
+
+## 📌 License
+
+Add your preferred license here (e.g., MIT, Apache-2.0, etc.).
+
+---
+
+## ✉️ Contact
+
+For questions or collaborations:
+
+- **Mohammad Alamgir Hossain**
+- GitHub: https://github.com/alamgirustc
